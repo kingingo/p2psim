@@ -22,13 +22,27 @@ public class ChordNode extends Node{
         this.server_socket = new TCPServerSocket(listen_on_port);
     }
 
+    
+
+    /**
+	 * Notify successor that this node should be its predecessor
+	 * @param successor
+	 * @return successor's response
+	 */
+    public String notify(TCPSocket socket){
+        if(socket != null && socket.getPort() != this.port){
+            return send_request("i_am_pre_", socket.getPort()).getPacket().getMsg();
+        }   
+        return null;
+    }
+
     /**
      * Join the chord network
      * @param port
      * @return
      */
     public boolean join(int port){
-        if(port != this.listen_on_port){
+        if(port != this.port){
             Response<StringPacket> response = send_request("find_successor", port);
 
             if(response != null && response.getPacket().getMsg().startsWith("found_successor")){
@@ -43,44 +57,13 @@ public class ChordNode extends Node{
     public void update_finder_table(int index, TCPSocket socket){
         this.finger_table[index] = socket;
 
-        if(index == 0 && socket != null && socket.getPort() != this.listen_on_port){
+        if(index == 0 && socket != null && socket.getPort() != this.port){
 
-        }
-    }
-
-    /**
-	 * Notify successor that this node should be its predecessor
-	 * @param successor
-	 * @return successor's response
-	 */
-    public String notify(TCPSocket socket){
-        if(socket != null && socket.getPort() != this.listen_on_port){
-            return send_request("i_am_pre_", socket.getPort()).getPacket().getMsg();
-        }   
-        return null;
-    }
-
-    /* GITHUB COPILOT CODE PRÜFEN!! */
-    public void stabilize(){
-        if(this.finger_table[0] != null && this.finger_table[0].getPort() != this.listen_on_port){
-            Response<StringPacket> response = send_request("get_predecessor", this.finger_table[0].getPort());
-
-            if(response != null && response.getPacket().getMsg().startsWith("found_predecessor")){
-                TCPSocket predecessor = response.getSocket();
-                if(predecessor != null && predecessor.getPort() != this.listen_on_port){
-                    int id = Integer.parseInt(response.getPacket().getMsg().split("_")[1]);
-                    if(id > this.id && id < this.finger_table[0].getPort()){
-                        update_finder_table(0, predecessor);
-                    }
-                }
-            }
-
-            notify(this.finger_table[0]);
         }
     }
 
     public Response<StringPacket> send_request(String msg, TCPSocket socket){
-        socket.send(msg+"_"+this.id);
+        socket.send(msg+"_"+getPort());
         
         sleep(60);
         Packet packet = socket.receive();

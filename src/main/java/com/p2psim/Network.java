@@ -19,7 +19,7 @@ public class Network<T extends Node> {
 
     public T get_node(int port){
         for(T node : this.nodes){
-            if(node.getListen_on_port() == port){
+            if(node.getPort() == port){
                 return node;
             }
         }
