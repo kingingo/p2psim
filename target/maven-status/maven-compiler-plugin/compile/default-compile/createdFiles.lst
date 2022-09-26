@@ -1,0 +1,6 @@
+com\p2psim\P2PSocket$SOCKET_TYPE.class
+com\p2psim\Node.class
+com\p2psim\socket\packets\Packet.class
+com\p2psim\socket\packets\IData.class
+com\p2psim\socket\packets\UnknownPacket.class
+com\p2psim\P2PSocket.class
